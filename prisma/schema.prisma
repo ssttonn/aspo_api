@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model account {
+  id             BigInt           @id @default(autoincrement())
+  username       String           @db.VarChar(500)
+  first_name     String           @db.VarChar(500)
+  last_name      String           @db.VarChar(500)
+  email          String           @db.VarChar(500)
+  password       String           @db.VarChar(500)
+  avatar_url     String?          @db.VarChar(500)
+  bio            String?          @db.VarChar(500)
+  created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime         @default(now()) @db.Timestamptz(6)
+  accountsetting accountsetting[]
+  meetingroom    meetingroom[]
+  participant    participant[]
+}
+
+model accountsetting {
+  id         BigInt   @id @default(autoincrement())
+  account_id BigInt
+  type       String   @db.VarChar(100)
+  value      Json     @db.Json
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  account    account  @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_setting_account_id_fk")
+}
+
+model chat {
+  id          BigInt      @id @default(autoincrement())
+  room_id     BigInt
+  created_at  DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime    @default(now()) @db.Timestamptz(6)
+  meetingroom meetingroom @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chat_room_id_fk")
+  message     message[]
+}
+
+model meetingroom {
+  id             BigInt           @id @default(autoincrement())
+  created_by     BigInt
+  name           String           @db.VarChar(500)
+  created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime         @default(now()) @db.Timestamptz(6)
+  chat           chat[]
+  account        account          @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "meeting_room_created_by_fk")
+  participant    participant[]
+  roomsetting    roomsetting[]
+  thingtodiscuss thingtodiscuss[]
+}
+
+model message {
+  id         BigInt      @id @default(autoincrement())
+  type       messagetype
+  value      Json        @db.Json
+  chat_id    BigInt
+  created_at DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at DateTime    @default(now()) @db.Timestamptz(6)
+  deleted_at DateTime?   @db.Timestamptz(6)
+  chat       chat        @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "message_chat_id_fk")
+}
+
+model participant {
+  id          BigInt      @id @default(autoincrement())
+  account_id  BigInt
+  room_id     BigInt
+  role        roletype
+  joined_at   DateTime    @default(now()) @db.Timestamptz(6)
+  status      statustype
+  created_at  DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime?   @default(now()) @db.Timestamptz(6)
+  account     account     @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "participant_account_id_fk")
+  meetingroom meetingroom @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "participant_room_id_fk")
+}
+
+model roomsetting {
+  id          BigInt      @id @default(autoincrement())
+  type        String      @db.VarChar(100)
+  value       Json        @db.Json
+  room_id     BigInt
+  created_at  DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime    @default(now()) @db.Timestamptz(6)
+  meetingroom meetingroom @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "room_setting_room_id_fk")
+}
+
+model thingtodiscuss {
+  id          BigInt      @id @default(autoincrement())
+  is_checked  Boolean     @default(false)
+  room_id     BigInt
+  content     String      @db.VarChar(500)
+  created_at  DateTime?   @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime?   @default(now()) @db.Timestamptz(6)
+  meetingroom meetingroom @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "thing_to_discuss_room_id_fk")
+}
+
+enum messagetype {
+  Text
+  Image
+  Video
+}
+
+enum roletype {
+  Host
+  Co_host  @map("Co-host")
+  Attendee
+}
+
+enum statustype {
+  Active
+  Inactive
+  Pending
+}

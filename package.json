@@ -14,6 +14,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/client": "^6.1.0",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.6",
@@ -22,7 +23,6 @@
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "prisma": "^6.0.0",
     "socket.io": "^4.8.1",
     "tsconfig-paths": "^4.2.0",
     "validator": "^13.12.0"
@@ -36,6 +36,7 @@
     "@types/validator": "^13.12.2",
     "concurrently": "^9.1.0",
     "nodemon": "^3.1.7",
+    "prisma": "^6.1.0",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.10",
     "typescript": "^5.7.2"
